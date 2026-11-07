@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Реєстрація | Bean Drop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">☕ Bean Drop</a>
+        <div id="auth-nav"></div>
+    </div>
+</nav>
+
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title text-center mb-4">Реєстрація</h3>
+            <div id="alert-box"></div>
+            
+            <form id="register-form">
+                <div class="mb-3">
+                    <label class="form-label">Username *</label>
+                    <input type="text" id="username" class="form-control" required>
+                    <div class="invalid-feedback" id="err-username"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email *</label>
+                    <input type="email" id="email" class="form-control" required>
+                    <div class="invalid-feedback" id="err-email"></div>
+                </div>
+                <div class="row">
+                    <div class="col mb-3">
+                        <label class="form-label">Ім'я</label>
+                        <input type="text" id="first_name" class="form-control">
+                    </div>
+                    <div class="col mb-3">
+                        <label class="form-label">Прізвище</label>
+                        <input type="text" id="last_name" class="form-control">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Пароль *</label>
+                    <input type="password" id="password" class="form-control" required>
+                    <div class="invalid-feedback" id="err-password"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Підтвердження пароля *</label>
+                    <input type="password" id="password_confirm" class="form-control" required>
+                    <div class="invalid-feedback" id="err-password_confirmation"></div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Зареєструватися</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="app.js"></script>
+<script>
+    if (isAuthenticated()) {
+        window.location.href = 'index.html';
+    }
+
+    $('#register-form').on('submit', function(e) {
+        e.preventDefault();
+        $('.form-control').removeClass('is-invalid');
+        $('.invalid-feedback').text('');
+
+        const payload = {
+            username: $('#username').val(),
+            email: $('#email').val(),
+            first_name: $('#first_name').val(),
+            last_name: $('#last_name').val(),
+            password: $('#password').val(),
+            password_confirmation: $('#password_confirm').val()
+        };
+
+        $.ajax({
+            url: `${API_BASE_URL}/users/register/`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function() {
+                alert('Реєстрація успішна! Тепер увійдіть.');
+                window.location.href = 'login.html';
+            },
+            error: function(xhr) {
+                if (xhr.status === 400 && xhr.responseJSON) {
+                    const errs = xhr.responseJSON;
+                    for (let key in errs) {
+                        $(`#err-${key}`).text(errs[key]);
+                        $(`#${key}`).addClass('is-invalid');
+                    }
+                } else {
+                    $('#alert-box').html('<div class="alert alert-danger">Помилка реєстрації!</div>');
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
